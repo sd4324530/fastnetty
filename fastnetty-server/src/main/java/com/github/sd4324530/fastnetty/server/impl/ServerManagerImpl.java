@@ -35,6 +35,7 @@ public class ServerManagerImpl implements ServerManager {
     public void startServers(int tcpPort, int udpPort) throws Exception {
         if(!this.servers.isEmpty()) {
             for(NettyServer server : this.servers) {
+                server.createServerBootstrap();
                 if(server instanceof NettyTCPServer) {
                     server.startServer(tcpPort);
                 } else if(server instanceof NettyUDPServer) {
@@ -48,6 +49,7 @@ public class ServerManagerImpl implements ServerManager {
     public void startServers() throws Exception {
         if(!this.servers.isEmpty()) {
             for(NettyServer server : this.servers) {
+                server.createServerBootstrap();
                 server.startServer();
             }
         }

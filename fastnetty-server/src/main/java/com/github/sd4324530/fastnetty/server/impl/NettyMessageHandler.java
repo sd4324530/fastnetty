@@ -3,6 +3,7 @@ package com.github.sd4324530.fastnetty.server.impl;
 import com.github.sd4324530.fastnetty.handler.MessageHandler;
 import com.github.sd4324530.fastnetty.handler.MessageSender;
 import com.github.sd4324530.fastnetty.handler.SimpleMessageSender;
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import org.slf4j.Logger;
@@ -14,7 +15,7 @@ import java.util.Set;
 /**
  * @author peiyu
  */
-class NettyMessageHandler extends SimpleChannelInboundHandler<ByteBuffer> {
+class NettyMessageHandler extends SimpleChannelInboundHandler<ByteBuf> {
 
     private static final Logger LOG = LoggerFactory.getLogger(NettyMessageHandler.class);
 
@@ -25,16 +26,19 @@ class NettyMessageHandler extends SimpleChannelInboundHandler<ByteBuffer> {
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, ByteBuffer byteBuffer) throws Exception {
+    protected void channelRead0(ChannelHandlerContext ctx, ByteBuf buffer) throws Exception {
         if (null != this.handlers && !this.handlers.isEmpty()) {
             MessageSender sender = new SimpleMessageSender(ctx.channel());
+            ByteBuffer byteBuffer = buffer.nioBuffer();
             for (MessageHandler handler : this.handlers) {
                 try {
                     handler.handler(byteBuffer, sender);
                 } catch (Exception e) {
                     LOG.warn("handler exception..", e);
                 } finally {
-                    byteBuffer.rewind();
+                    if (null != byteBuffer) {
+                        byteBuffer.rewind();
+                    }
                 }
             }
         }

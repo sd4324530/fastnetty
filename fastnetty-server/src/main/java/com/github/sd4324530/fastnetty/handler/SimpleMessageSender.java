@@ -1,6 +1,6 @@
 package com.github.sd4324530.fastnetty.handler;
 
-import com.github.sd4324530.fastnetty.core.message.FastNettyMessage;
+import com.github.sd4324530.fastnetty.core.message.OutputMessage;
 import io.netty.channel.Channel;
 
 /**
@@ -15,7 +15,7 @@ public class SimpleMessageSender implements MessageSender {
     }
 
     @Override
-    public void send(FastNettyMessage message) {
+    public void send(OutputMessage message) {
         if(null != this.channel && this.channel.isOpen()) {
             this.channel.writeAndFlush(message);
         }
