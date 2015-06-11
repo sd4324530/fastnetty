@@ -1,7 +1,9 @@
 package com.github.sd4324530.fastnetty.server.impl;
 
+import com.github.sd4324530.fastnetty.handler.MessageHandler;
 import com.github.sd4324530.fastnetty.server.NettyServer;
-import io.netty.bootstrap.ServerBootstrap;
+import com.github.sd4324530.fastnetty.server.parse.DefaultMessageCodec;
+import io.netty.bootstrap.AbstractBootstrap;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.ChannelGroupFuture;
 import io.netty.channel.group.DefaultChannelGroup;
@@ -10,19 +12,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
+import java.util.Set;
 
 /**
  * @author peiyu
  */
 public abstract class AbstractNettyServer implements NettyServer {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractNettyServer.class);
+    private static final Logger              LOG            = LoggerFactory.getLogger(AbstractNettyServer.class);
+    protected            DefaultMessageCodec messageCodec   = new DefaultMessageCodec();
+    public static final  ChannelGroup        ALL_CHANNELS   = new DefaultChannelGroup("FASTNETTY-CHANNELS", GlobalEventExecutor.INSTANCE);
+    protected            int                 workThreadSize = 4;
 
-    protected ServerBootstrap serverBootstrap;
-
-    protected InetSocketAddress socketAddress;
-
-    public static final ChannelGroup ALL_CHANNELS = new DefaultChannelGroup("FASTNETTY-CHANNELS", GlobalEventExecutor.INSTANCE);
+    protected InetSocketAddress   socketAddress;
+    protected Set<MessageHandler> messageHandlers;
+    protected AbstractBootstrap   serverBootstrap;
 
     @Override
     public void stopServer() throws Exception {
@@ -35,8 +39,45 @@ public abstract class AbstractNettyServer implements NettyServer {
         }
     }
 
+    public void setPort(int port) {
+        this.socketAddress = new InetSocketAddress(port);
+    }
+
     @Override
     public InetSocketAddress getSocketAddress() {
         return this.socketAddress;
+    }
+
+    @Override
+    public void setSocketAddress(InetSocketAddress socketAddress) {
+        this.socketAddress = socketAddress;
+    }
+
+    public void setWorkThreadSize(int size) {
+        this.workThreadSize = size;
+    }
+
+    public void setMessageHandlers(Set<MessageHandler> messageHandlers) {
+        this.messageHandlers = messageHandlers;
+    }
+
+    @Override
+    public void startServer() throws Exception {
+        if (null == this.socketAddress) {
+            throw new NullPointerException("socketAddress is null");
+        }
+        startServer(this.socketAddress);
+    }
+
+    @Override
+    public void startServer(int port) throws Exception {
+        startServer(new InetSocketAddress(port));
+    }
+
+    @Override
+    public void startServer(InetSocketAddress socketAddress) throws Exception {
+        this.socketAddress = socketAddress;
+        LOG.debug("start server,port:{}", socketAddress.getPort());
+        this.serverBootstrap.bind(this.socketAddress.getPort()).sync();
     }
 }

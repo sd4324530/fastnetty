@@ -1,7 +1,6 @@
 package com.github.sd4324530.fastnetty.server.impl;
 
-import com.github.sd4324530.fastnetty.handler.MessageHandler;
-import com.github.sd4324530.fastnetty.server.parse.DefaultMessageCodec;
+import io.netty.bootstrap.AbstractBootstrap;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
@@ -10,35 +9,19 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LoggingHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.net.InetSocketAddress;
-import java.util.Set;
 
 /**
+ * tcp server
+ *
  * @author peiyu
  */
 public class NettyTCPServer extends AbstractNettyServer {
 
-    private static final Logger              LOG            = LoggerFactory.getLogger(NettyTCPServer.class);
     /**
      * 用于分配处理业务线程的线程组个数
      */
-    private static final int                 BIZGROUPSIZE   = Runtime.getRuntime().availableProcessors() * 2;    //默认
-    private              int                 workThreadSize = 4;
-    private static final EventLoopGroup      bossGroup      = new NioEventLoopGroup(BIZGROUPSIZE);
-    private              DefaultMessageCodec messageCodec   = new DefaultMessageCodec();
-
-    private Set<MessageHandler> messageHandlers;
-
-    public void setMessageHandlers(Set<MessageHandler> messageHandlers) {
-        this.messageHandlers = messageHandlers;
-    }
-
-    public void setWorkThreadSize(int size) {
-        this.workThreadSize = size;
-    }
+    private static final int            BIZ_GROUP_SIZE = Runtime.getRuntime().availableProcessors() * 2;    //默认
+    private final        EventLoopGroup BOSS_GROUP     = new NioEventLoopGroup(BIZ_GROUP_SIZE);
 
     @Override
     public ServerType getServerType() {
@@ -46,37 +29,21 @@ public class NettyTCPServer extends AbstractNettyServer {
     }
 
     @Override
-    public ServerBootstrap createServerBootstrap() {
-        this.serverBootstrap = new ServerBootstrap();
-        this.serverBootstrap.group(bossGroup, new NioEventLoopGroup(this.workThreadSize));
-        this.serverBootstrap.channel(NioServerSocketChannel.class);
-        this.serverBootstrap.childHandler(new ChannelInitializer<SocketChannel>() {
+    public AbstractBootstrap createServerBootstrap() {
+        ServerBootstrap bootstrap = new ServerBootstrap();
+        bootstrap.group(BOSS_GROUP, new NioEventLoopGroup(this.workThreadSize));
+        bootstrap.channel(NioServerSocketChannel.class);
+        bootstrap.childHandler(new ChannelInitializer<SocketChannel>() {
             @Override
             protected void initChannel(SocketChannel ch) throws Exception {
                 ChannelPipeline pipeline = ch.pipeline();
                 NettyMessageHandler messageHandler = new NettyMessageHandler();
                 messageHandler.setHandlers(messageHandlers);
                 pipeline.addLast(new LoggingHandler(), messageHandler, messageCodec);
+                ALL_CHANNELS.add(ch);
             }
         });
+        this.serverBootstrap = bootstrap;
         return this.serverBootstrap;
-    }
-
-    @Override
-    public void startServer() throws Exception {
-        startServer(49152);
-    }
-
-    @Override
-    public void startServer(int port) throws Exception {
-        this.socketAddress = new InetSocketAddress(port);
-        startServer(this.socketAddress);
-    }
-
-    @Override
-    public void startServer(InetSocketAddress socketAddress) throws Exception {
-        this.socketAddress = socketAddress;
-        LOG.debug("启动服务器.....监听端口:{}", socketAddress.getPort());
-        this.serverBootstrap.bind(this.socketAddress.getPort()).sync();
     }
 }

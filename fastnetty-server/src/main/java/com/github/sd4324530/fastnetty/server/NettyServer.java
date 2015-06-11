@@ -1,6 +1,6 @@
 package com.github.sd4324530.fastnetty.server;
 
-import io.netty.bootstrap.ServerBootstrap;
+import io.netty.bootstrap.AbstractBootstrap;
 
 import java.net.InetSocketAddress;
 
@@ -15,7 +15,7 @@ public interface NettyServer {
 
     ServerType getServerType();
 
-    ServerBootstrap createServerBootstrap();
+    AbstractBootstrap createServerBootstrap();
 
     void startServer() throws Exception;
 
@@ -26,4 +26,6 @@ public interface NettyServer {
     void stopServer() throws Exception;
 
     InetSocketAddress getSocketAddress();
+
+    void setSocketAddress(InetSocketAddress socketAddress);
 }

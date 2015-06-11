@@ -2,8 +2,6 @@ package com.github.sd4324530.fastnetty.server.impl;
 
 import com.github.sd4324530.fastnetty.server.NettyServer;
 import com.github.sd4324530.fastnetty.server.ServerManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -11,9 +9,7 @@ import java.util.Set;
 /**
  * @author peiyu
  */
-public class ServerManagerImpl implements ServerManager {
-
-    private static final Logger LOG = LoggerFactory.getLogger(ServerManagerImpl.class);
+public final class ServerManagerImpl implements ServerManager {
 
     private Set<NettyServer> servers;
 
@@ -33,12 +29,12 @@ public class ServerManagerImpl implements ServerManager {
 
     @Override
     public void startServers(int tcpPort, int udpPort) throws Exception {
-        if(!this.servers.isEmpty()) {
-            for(NettyServer server : this.servers) {
+        if (!this.servers.isEmpty()) {
+            for (NettyServer server : this.servers) {
                 server.createServerBootstrap();
-                if(server instanceof NettyTCPServer) {
+                if (server instanceof NettyTCPServer) {
                     server.startServer(tcpPort);
-                } else if(server instanceof NettyUDPServer) {
+                } else if (server instanceof NettyUDPServer) {
                     server.startServer(udpPort);
                 }
             }
@@ -47,8 +43,8 @@ public class ServerManagerImpl implements ServerManager {
 
     @Override
     public void startServers() throws Exception {
-        if(!this.servers.isEmpty()) {
-            for(NettyServer server : this.servers) {
+        if (!this.servers.isEmpty()) {
+            for (NettyServer server : this.servers) {
                 server.createServerBootstrap();
                 server.startServer();
             }
@@ -57,8 +53,8 @@ public class ServerManagerImpl implements ServerManager {
 
     @Override
     public void stopServers() throws Exception {
-        if(!this.servers.isEmpty()) {
-            for(NettyServer server : this.servers) {
+        if (!this.servers.isEmpty()) {
+            for (NettyServer server : this.servers) {
                 server.stopServer();
             }
         }
