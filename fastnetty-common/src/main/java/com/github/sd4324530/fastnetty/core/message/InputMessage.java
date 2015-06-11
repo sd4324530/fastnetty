@@ -5,6 +5,6 @@ import java.nio.ByteBuffer;
 /**
  * @author peiyu
  */
-public abstract class InputMessage implements FastNettyMessage {
-    public abstract void fromBytes(ByteBuffer byteBuffer);
+public interface InputMessage extends FastNettyMessage {
+    InputMessage fromBytes(ByteBuffer byteBuffer);
 }

@@ -8,19 +8,18 @@ import io.netty.handler.codec.ByteToMessageCodec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.ByteBuffer;
 import java.util.List;
 
 /**
  * @author peiyu
  */
-public abstract class AbstractMessageCodec<M extends FastNettyMessage> extends ByteToMessageCodec<M> {
+public class DefaultMessageCodec<M extends FastNettyMessage> extends ByteToMessageCodec<M> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractMessageCodec.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultMessageCodec.class);
 
     @Override
     protected void encode(ChannelHandlerContext ctx, M msg, ByteBuf out) throws Exception {
-        if(msg instanceof OutputMessage) {
+        if (msg instanceof OutputMessage) {
             OutputMessage message = (OutputMessage) msg;
             ctx.channel().writeAndFlush(message.toBytes());
         } else {
@@ -30,11 +29,8 @@ public abstract class AbstractMessageCodec<M extends FastNettyMessage> extends B
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
-        out.add(in(in.nioBuffer()));
+        out.add(in.nioBuffer());
         in.clear();
     }
-
-    protected abstract M in(ByteBuffer byteBuffer);
-
 
 }

@@ -1,11 +1,11 @@
 package com.github.sd4324530.fastnetty.handler;
 
-import com.github.sd4324530.fastnetty.core.message.FastNettyMessage;
+import java.nio.ByteBuffer;
 
 /**
  * @author peiyu
  */
-public interface MessageHandler<M extends FastNettyMessage> {
+public interface MessageHandler {
 
-    void handler(M message, MessageSender sender);
+    void handler(ByteBuffer byteBuffer, MessageSender sender);
 }

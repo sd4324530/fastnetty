@@ -1,7 +1,7 @@
 package com.github.sd4324530.fastnetty.server.impl;
 
 import com.github.sd4324530.fastnetty.handler.MessageHandler;
-import com.github.sd4324530.fastnetty.server.parse.AbstractMessageCodec;
+import com.github.sd4324530.fastnetty.server.parse.DefaultMessageCodec;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
@@ -14,30 +14,26 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
-import java.util.List;
+import java.util.Set;
 
 /**
  * @author peiyu
  */
 public class NettyTCPServer extends AbstractNettyServer {
 
-    private static final Logger         LOG            = LoggerFactory.getLogger(NettyTCPServer.class);
+    private static final Logger              LOG            = LoggerFactory.getLogger(NettyTCPServer.class);
     /**
      * 用于分配处理业务线程的线程组个数
      */
-    private static final int            BIZGROUPSIZE   = Runtime.getRuntime().availableProcessors() * 2;    //默认
-    private              int            workThreadSize = 4;
-    private static final EventLoopGroup bossGroup      = new NioEventLoopGroup(BIZGROUPSIZE);
+    private static final int                 BIZGROUPSIZE   = Runtime.getRuntime().availableProcessors() * 2;    //默认
+    private              int                 workThreadSize = 4;
+    private static final EventLoopGroup      bossGroup      = new NioEventLoopGroup(BIZGROUPSIZE);
+    private              DefaultMessageCodec messageCodec   = new DefaultMessageCodec();
 
-    private AbstractMessageCodec messageCodec;
-    private List<MessageHandler> messageHandlerList;
+    private Set<MessageHandler> messageHandlers;
 
-    public void setMessageCodec(AbstractMessageCodec messageCodec) {
-        this.messageCodec = messageCodec;
-    }
-
-    public void setMessageHandlerList(List<MessageHandler> messageHandlerList) {
-        this.messageHandlerList = messageHandlerList;
+    public void setMessageHandlers(Set<MessageHandler> messageHandlers) {
+        this.messageHandlers = messageHandlers;
     }
 
     public void setWorkThreadSize(int size) {
@@ -59,7 +55,7 @@ public class NettyTCPServer extends AbstractNettyServer {
             protected void initChannel(SocketChannel ch) throws Exception {
                 ChannelPipeline pipeline = ch.pipeline();
                 NettyMessageHandler messageHandler = new NettyMessageHandler();
-                messageHandler.setHandlerList(messageHandlerList);
+                messageHandler.setHandlers(messageHandlers);
                 pipeline.addLast(new LoggingHandler(), messageHandler, messageCodec);
             }
         });

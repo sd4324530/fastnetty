@@ -1,35 +1,47 @@
 package com.github.sd4324530.fastnetty.server.impl;
 
-import com.github.sd4324530.fastnetty.core.message.FastNettyMessage;
 import com.github.sd4324530.fastnetty.handler.MessageHandler;
 import com.github.sd4324530.fastnetty.handler.MessageSender;
 import com.github.sd4324530.fastnetty.handler.SimpleMessageSender;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.List;
+import java.nio.ByteBuffer;
+import java.util.Set;
 
 /**
  * @author peiyu
  */
-class NettyMessageHandler extends SimpleChannelInboundHandler<FastNettyMessage> {
+class NettyMessageHandler extends SimpleChannelInboundHandler<ByteBuffer> {
 
-    private List<MessageHandler> handlerList;
+    private static final Logger LOG = LoggerFactory.getLogger(NettyMessageHandler.class);
 
-    public void setHandlerList(List<MessageHandler> handlerList) {
-        this.handlerList = handlerList;
+    private Set<MessageHandler> handlers;
+
+    public void setHandlers(Set<MessageHandler> handlers) {
+        this.handlers = handlers;
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, FastNettyMessage msg) throws Exception {
-        if (null != this.handlerList && !this.handlerList.isEmpty()) {
+    protected void channelRead0(ChannelHandlerContext ctx, ByteBuffer byteBuffer) throws Exception {
+        if (null != this.handlers && !this.handlers.isEmpty()) {
             MessageSender sender = new SimpleMessageSender(ctx.channel());
-            for (MessageHandler handler : this.handlerList) {
+            for (MessageHandler handler : this.handlers) {
                 try {
-                    handler.handler(msg, sender);
-                } catch (Exception ignored) {
+                    handler.handler(byteBuffer, sender);
+                } catch (Exception e) {
+                    LOG.warn("handler exception..", e);
+                } finally {
+                    byteBuffer.rewind();
                 }
             }
         }
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        LOG.error("channel error..", cause);
     }
 }
