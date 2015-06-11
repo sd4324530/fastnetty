@@ -21,13 +21,14 @@ public class FastnettyTest {
         ServerManager serverManager = new ServerManagerImpl();
         NettyTCPServer server = new NettyTCPServer();
         server.setWorkThreadSize(4);
+        server.setPort(49151);
         TestMessageHandler messageHandler = new TestMessageHandler();
         Set<MessageHandler> handlers = new HashSet<MessageHandler>();
         handlers.add(messageHandler);
         server.setMessageHandlers(handlers);
         serverManager.addServer(server);
         try {
-            serverManager.startServers(49151, 0);
+            serverManager.startServers();
             LOG.debug("启动监听成功......");
         } catch (Exception e) {
             LOG.error("启动监听异常", e);
