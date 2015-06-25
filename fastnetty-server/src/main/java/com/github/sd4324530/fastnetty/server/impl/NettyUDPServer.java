@@ -4,10 +4,13 @@ import io.netty.bootstrap.AbstractBootstrap;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.handler.logging.LoggingHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * udp server
@@ -15,6 +18,10 @@ import io.netty.handler.logging.LoggingHandler;
  * @author peiyu
  */
 public class NettyUDPServer extends AbstractNettyServer {
+
+    private static final Logger LOG = LoggerFactory.getLogger(NettyUDPServer.class);
+
+    private EventLoopGroup workGroup;
 
     @Override
     public ServerType getServerType() {
@@ -24,7 +31,8 @@ public class NettyUDPServer extends AbstractNettyServer {
     @Override
     public AbstractBootstrap createServerBootstrap() {
         this.serverBootstrap = new Bootstrap();
-        this.serverBootstrap.group(new NioEventLoopGroup(this.workThreadSize));
+        this.workGroup = new NioEventLoopGroup(this.workThreadSize);
+        this.serverBootstrap.group(this.workGroup);
         this.serverBootstrap.channel(NioDatagramChannel.class);
         this.serverBootstrap.handler(new ChannelInitializer<DatagramChannel>() {
             @Override
@@ -32,10 +40,15 @@ public class NettyUDPServer extends AbstractNettyServer {
                 ChannelPipeline pipeline = ch.pipeline();
                 NettyMessageHandler messageHandler = new NettyMessageHandler();
                 messageHandler.setHandlers(messageHandlers);
-                pipeline.addLast(new LoggingHandler(), messageHandler, messageCodec);
-                ALL_CHANNELS.add(ch);
+                pipeline.addLast(LOGGING_HANDLER, messageHandler, messageCodec);
             }
         });
         return this.serverBootstrap;
+    }
+
+    @Override
+    public void stopServer() throws Exception {
+        LOG.debug("stop the udp server:{}", getClass().getName());
+        this.workGroup.shutdownGracefully();
     }
 }

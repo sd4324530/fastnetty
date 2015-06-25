@@ -4,10 +4,7 @@ import com.github.sd4324530.fastnetty.handler.MessageHandler;
 import com.github.sd4324530.fastnetty.server.NettyServer;
 import com.github.sd4324530.fastnetty.server.parse.DefaultMessageCodec;
 import io.netty.bootstrap.AbstractBootstrap;
-import io.netty.channel.group.ChannelGroup;
-import io.netty.channel.group.ChannelGroupFuture;
-import io.netty.channel.group.DefaultChannelGroup;
-import io.netty.util.concurrent.GlobalEventExecutor;
+import io.netty.handler.logging.LoggingHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,25 +16,14 @@ import java.util.Set;
  */
 public abstract class AbstractNettyServer implements NettyServer {
 
-    private static final Logger              LOG            = LoggerFactory.getLogger(AbstractNettyServer.class);
-    protected            DefaultMessageCodec messageCodec   = new DefaultMessageCodec();
-    public static final  ChannelGroup        ALL_CHANNELS   = new DefaultChannelGroup("FASTNETTY-CHANNELS", GlobalEventExecutor.INSTANCE);
-    protected            int                 workThreadSize = 4;
+    private static final   Logger              LOG             = LoggerFactory.getLogger(AbstractNettyServer.class);
+    protected              DefaultMessageCodec messageCodec    = new DefaultMessageCodec();
+    protected static final LoggingHandler      LOGGING_HANDLER = new LoggingHandler();
+    protected              int                 workThreadSize  = 4;
 
     protected InetSocketAddress   socketAddress;
     protected Set<MessageHandler> messageHandlers;
     protected AbstractBootstrap   serverBootstrap;
-
-    @Override
-    public void stopServer() throws Exception {
-        LOG.debug("stop the server:{}", getClass().getName());
-        ChannelGroupFuture future = ALL_CHANNELS.close();
-        try {
-            future.await();
-        } catch (InterruptedException e) {
-            LOG.error("error", e);
-        }
-    }
 
     public void setPort(int port) {
         this.socketAddress = new InetSocketAddress(port);
