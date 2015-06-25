@@ -4,7 +4,7 @@
 
     <groupId>com.github.sd4324530</groupId>
     <artifactId>fastnetty</artifactId>
-    <version>0.1.1</version>
+    <version>0.1.2-SNAPSHOT</version>
     <modules>
         <module>fastnetty-server</module>
         <module>fastnetty-common</module>
@@ -28,7 +28,7 @@
         <connection>scm:git:git://github.com/sd4324530/fastnetty.git</connection>
         <developerConnection>scm:git:git@github.com:sd4324530/fastnetty.git</developerConnection>
         <url>https://github.com/sd4324530/fastnetty.git</url>
-        <tag>v0.1.1</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <developers>
