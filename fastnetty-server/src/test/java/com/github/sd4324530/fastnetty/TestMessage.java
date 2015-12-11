@@ -32,7 +32,8 @@ public class TestMessage implements InputMessage {
     }
 
     @Override
-    public TestMessage fromBytes(ByteBuffer byteBuffer) {
+    public TestMessage fromBytes(byte[] bytes) {
+        ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
         byte soi = byteBuffer.get();
         char adr = byteBuffer.getChar();
         byte cid1 = byteBuffer.get();

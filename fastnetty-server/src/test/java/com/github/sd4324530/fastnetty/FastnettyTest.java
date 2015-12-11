@@ -23,7 +23,7 @@ public class FastnettyTest {
         server.setWorkThreadSize(4);
         server.setPort(49151);
         TestMessageHandler messageHandler = new TestMessageHandler();
-        Set<MessageHandler> handlers = new HashSet<MessageHandler>();
+        Set<MessageHandler> handlers = new HashSet<>();
         handlers.add(messageHandler);
         server.setMessageHandlers(handlers);
         serverManager.addServer(server);

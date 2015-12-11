@@ -9,7 +9,6 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.ByteBuffer;
 import java.util.Set;
 
 /**
@@ -29,16 +28,12 @@ class NettyMessageHandler extends SimpleChannelInboundHandler<ByteBuf> {
     protected void channelRead0(ChannelHandlerContext ctx, ByteBuf buffer) throws Exception {
         if (null != this.handlers && !this.handlers.isEmpty()) {
             MessageSender sender = new SimpleMessageSender(ctx.channel());
-            ByteBuffer byteBuffer = buffer.nioBuffer();
+            byte[] bytes = buffer.array();
             for (MessageHandler handler : this.handlers) {
                 try {
-                    handler.handler(byteBuffer, sender);
+                    handler.handler(bytes, sender);
                 } catch (Exception e) {
                     LOG.warn("handler exception..", e);
-                } finally {
-                    if (null != byteBuffer) {
-                        byteBuffer.rewind();
-                    }
                 }
             }
         }
