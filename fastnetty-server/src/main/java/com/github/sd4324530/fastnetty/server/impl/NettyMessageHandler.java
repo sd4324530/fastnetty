@@ -4,6 +4,7 @@ import com.github.sd4324530.fastnetty.handler.MessageHandler;
 import com.github.sd4324530.fastnetty.handler.MessageSender;
 import com.github.sd4324530.fastnetty.handler.SimpleMessageSender;
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import org.slf4j.Logger;
@@ -14,6 +15,7 @@ import java.util.Set;
 /**
  * @author peiyu
  */
+@Sharable
 class NettyMessageHandler extends SimpleChannelInboundHandler<ByteBuf> {
 
     private static final Logger LOG = LoggerFactory.getLogger(NettyMessageHandler.class);
@@ -42,5 +44,6 @@ class NettyMessageHandler extends SimpleChannelInboundHandler<ByteBuf> {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         LOG.error("channel error..", cause);
+        ctx.close();
     }
 }

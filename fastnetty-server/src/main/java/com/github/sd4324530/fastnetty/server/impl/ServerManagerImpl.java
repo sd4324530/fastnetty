@@ -14,7 +14,7 @@ public final class ServerManagerImpl implements ServerManager {
     private Set<NettyServer> servers;
 
     public ServerManagerImpl() {
-        this.servers = new HashSet<NettyServer>();
+        this.servers = new HashSet<>();
     }
 
     @Override
@@ -31,7 +31,6 @@ public final class ServerManagerImpl implements ServerManager {
     public void startServers(int tcpPort, int udpPort) throws Exception {
         if (!this.servers.isEmpty()) {
             for (NettyServer server : this.servers) {
-                server.createServerBootstrap();
                 if (server instanceof NettyTCPServer) {
                     server.startServer(tcpPort);
                 } else if (server instanceof NettyUDPServer) {
@@ -45,7 +44,6 @@ public final class ServerManagerImpl implements ServerManager {
     public void startServers() throws Exception {
         if (!this.servers.isEmpty()) {
             for (NettyServer server : this.servers) {
-                server.createServerBootstrap();
                 server.startServer();
             }
         }

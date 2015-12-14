@@ -26,13 +26,16 @@ public class NettyTCPServer extends AbstractNettyServer {
     private final        EventLoopGroup BOSS_GROUP     = new NioEventLoopGroup(BIZ_GROUP_SIZE);
     private EventLoopGroup workGroup;
 
+    public NettyTCPServer() {
+        createServerBootstrap();
+    }
+
     @Override
     public ServerType getServerType() {
         return ServerType.TCP;
     }
 
-    @Override
-    public AbstractBootstrap createServerBootstrap() {
+    AbstractBootstrap createServerBootstrap() {
         ServerBootstrap bootstrap = new ServerBootstrap();
         this.workGroup = new NioEventLoopGroup(this.workThreadSize);
         bootstrap.group(BOSS_GROUP, this.workGroup);

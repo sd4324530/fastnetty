@@ -8,7 +8,6 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.nio.NioDatagramChannel;
-import io.netty.handler.logging.LoggingHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,13 +22,16 @@ public class NettyUDPServer extends AbstractNettyServer {
 
     private EventLoopGroup workGroup;
 
+    public NettyUDPServer() {
+        createServerBootstrap();
+    }
+
     @Override
     public ServerType getServerType() {
         return ServerType.UDP;
     }
 
-    @Override
-    public AbstractBootstrap createServerBootstrap() {
+    AbstractBootstrap createServerBootstrap() {
         this.serverBootstrap = new Bootstrap();
         this.workGroup = new NioEventLoopGroup(this.workThreadSize);
         this.serverBootstrap.group(this.workGroup);
