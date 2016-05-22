@@ -3,6 +3,7 @@ package com.github.sd4324530.fastnetty.server;
 import java.util.Set;
 
 /**
+ * 服务端管理器接口
  * @author peiyu
  */
 public interface ServerManager {

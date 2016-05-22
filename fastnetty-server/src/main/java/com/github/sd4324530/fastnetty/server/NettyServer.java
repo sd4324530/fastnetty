@@ -3,6 +3,7 @@ package com.github.sd4324530.fastnetty.server;
 import java.net.InetSocketAddress;
 
 /**
+ * 基于Netty通讯服务端接口
  * @author peiyu
  */
 public interface NettyServer {
